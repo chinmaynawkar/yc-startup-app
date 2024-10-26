@@ -1,6 +1,10 @@
+import SearchForm from "../../components/SearchForm";
 
 
-export default function Home() {
+export default async function Home({searchParams}: {searchParams: Promise<{query: string}>}) {
+  //searchParams is a promise that resolves to an object with a query property
+  const query = (await searchParams).query;
+
   return (
     <>
       <section className="pink_container">
@@ -12,6 +16,7 @@ export default function Home() {
           YC Startup App is a platform for startups to pitch their ideas to
           investors.
         </p>
+        <SearchForm query={query} />
       </section>
     </>
   );
