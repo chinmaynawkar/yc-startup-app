@@ -4,6 +4,10 @@ import Link from "next/link";
 import React from "react";
 import Image from "next/image";
 import { Button } from "./ui/button";
+import { Author, Startup } from "@/sanity/types";
+
+//Omit the author field from the Startup type and add an optional author field
+export type StartupTypeCard = Omit<Startup, "author"> & { author?: Author }
 
 const StartupCard = ({ post }: { post: StartupTypeCard }) => {
     const {
@@ -36,7 +40,7 @@ const StartupCard = ({ post }: { post: StartupTypeCard }) => {
               <h3 className="text-26-semibold line-clamp-1">{title}</h3>
             </Link>
           </div>
-          <Link href={`/user/${author?._id}`}>
+          <Link href={`/user/${author?.image}`}>
             <Image
               src="https://picsum.photos/100/100"
               alt="placeholder"
