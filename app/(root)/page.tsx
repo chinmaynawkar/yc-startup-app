@@ -1,32 +1,30 @@
-import StartupCard from "@/components/StartupCard";
+import StartupCard, { StartupTypeCard } from "@/components/StartupCard";
 import SearchForm from "../../components/SearchForm";
+import { STARTUPS_QUERY } from "@/sanity/lib/queries";
+import { client } from "@/sanity/lib/client";
 
+// Add at the top of your page component
+export const revalidate = 0;
 
-export default async function Home({searchParams}: {searchParams: Promise<{query: string}>}) {
+export default async function Home({
+  searchParams,
+}: {
+  searchParams: Promise<{ query: string }>;
+}) {
   //searchParams is a promise that resolves to an object with a query property
   const query = (await searchParams).query;
+  let posts: StartupTypeCard[] = [];
 
-  const posts = [{ 
-    _createdAt: new Date().toISOString(),
-    views: 100,
-    _id: '123',
-    author: { _id: 1, name: 'Chinmay'},
-    description: 'CyberTech Platform is a platform for startups to pitch their ideas to investors.',
-    image: 'https://picsum.photos/100/100',
-    category: 'Technology',
-    title: 'CyberTech Platform',
-  },
-  {
-    _createdAt: new Date().toISOString(),
-    views: 250,
-    _id: '125',
-    author: { _id: 2, name: 'Sarah'},
-    description: 'EcoGrow is an innovative app that helps urban dwellers create and maintain sustainable home gardens.',
-    image: 'https://picsum.photos/300/400',
-    category: 'Sustainability',
-    title: 'EcoGrow: Urban Gardening Made Easy',
+  try {
+    const data = await client.fetch<StartupTypeCard[]>(STARTUPS_QUERY);
+    posts = data || [];
+  } catch (error) {
+    console.error("Sanity query error:", error);
+    if (error instanceof Error) {
+      console.error("Error message:", error.message);
+    }
   }
-]
+
   return (
     <>
       <section className="pink_container">
@@ -41,16 +39,15 @@ export default async function Home({searchParams}: {searchParams: Promise<{query
         <SearchForm query={query} />
       </section>
 
-      <section className='section_container'>
+      <section className="section_container">
         <p className="text-3xl font-semibold">
-          {query ? `Search results for "${query}"` : 'Latest startups'}
+          {query ? `Search results for "${query}"` : "Latest startups"}
         </p>
 
         <ul className="mt-7 card_grid">
-          {/* TODO: Fetch startups from database */}
-          {posts?.length > 0 ? (
-            posts.map((post: StartupCardType) => (
-              <StartupCard key={post?._id} post={post} />
+          {posts.length > 0 ? (
+            posts.map((post: StartupTypeCard) => (
+              <StartupCard key={post._id} post={post} />
             ))
           ) : (
             <p className="no-result">No startups found</p>
