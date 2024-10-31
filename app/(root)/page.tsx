@@ -9,14 +9,15 @@ export const revalidate = 0;
 export default async function Home({
   searchParams,
 }: {
-  searchParams: Promise<{ query: string }>;
+  searchParams: Promise<{ query?: string }>;
 }) {
   //searchParams is a promise that resolves to an object with a query property
   const query = (await searchParams).query;
+  const params = { search: query || null };
   let posts = [];
 
   try {
-    const data = await sanityFetch({ query: STARTUPS_QUERY });
+    const data = await sanityFetch({ query: STARTUPS_QUERY, params });
     posts = data.data || [];
   } catch (error) {
     console.error("Sanity query error:", error);
