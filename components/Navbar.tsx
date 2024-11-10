@@ -1,8 +1,8 @@
 import Link from "next/link";
 import Image from "next/image";
 import { auth, signOut, signIn } from "@/auth";
-// import { BadgePlus, LogOut } from "lucide-react";
-// import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { BadgePlus, LogOut } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 const Navbar = async () => {
   const session = await auth();
@@ -19,12 +19,12 @@ const Navbar = async () => {
             <>
               <Link href="/startup/create">
                 <span className="max-sm:hidden">Create</span>
-                {/* <BadgePlus className="size-6 sm:hidden" /> */}
+                <BadgePlus className="size-6 sm:hidden" />
               </Link>
 
               <form
                 action={async () => {
-                  //being used to call the server action
+                  // being used to call server action 
                   "use server";
 
                   await signOut({ redirectTo: "/" });
@@ -32,23 +32,21 @@ const Navbar = async () => {
               >
                 <button type="submit">
                   <span className="max-sm:hidden">Logout</span>
-                  {/* <LogOut className="size-6 sm:hidden text-red-500" /> */}
+                  <LogOut className="size-6 sm:hidden text-red-500" />
                 </button>
               </form>
 
-              <Link href={`/user/${session?.user?.name}`}>
-                <span className="max-sm:hidden">{session.user.name}</span>
-                {/* <Avatar className="size-10">
+              <Link href={`/user/${session?.id}`}>
+                <Avatar className="size-10">
                   <AvatarImage
                     src={session?.user?.image || ""}
                     alt={session?.user?.name || ""}
                   />
                   <AvatarFallback>AV</AvatarFallback>
-                </Avatar> */}
+                </Avatar>
               </Link>
             </>
           ) : (
-              // use server action because we need to redirect to the login page
             <form
               action={async () => {
                 "use server";

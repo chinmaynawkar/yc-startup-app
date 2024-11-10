@@ -124,3 +124,51 @@ export const AUTHOR_BY_GITHUB_ID_QUERY = defineQuery(`
     email
   }
 `);
+
+/**
+ * Query to fetch a single author document by ID from Sanity
+ * 
+ * Conditions:
+ * - Document type must be "author" 
+ * - Matches exact _id parameter
+ * - Returns first (and should be only) matching document
+ */
+export const AUTHOR_BY_ID_QUERY = defineQuery(`
+  *[_type == "author" && _id == $id][0]{
+      _id,
+      id,
+      name,
+      username,
+      email,
+      image,
+      bio
+  }
+  `);
+
+  
+  /**
+   * Query to fetch all startup documents by author ID from Sanity
+   * 
+   * Conditions:
+   * - Document type must be "startup"
+   * - Author reference matches exact ID parameter
+   * - Orders results by creation date descending (newest first)
+   * 
+   * Returns startup details including: Internal Sanity ID (_id), Title, URL slug, Creation date, 
+   * Author details (ID, name, image, bio), View count, Description, Category, Featured image
+   */
+  export const STARTUPS_BY_AUTHOR_QUERY =
+  defineQuery(`*[_type == "startup" && author._ref == $id] | order(_createdAt desc) {
+  _id, 
+  title, 
+  slug,
+  _createdAt,
+  author -> {
+    _id, name, image, bio
+  }, 
+  views,
+  description,
+  category,
+    image,
+  }
+`);
