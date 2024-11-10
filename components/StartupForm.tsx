@@ -38,7 +38,7 @@ const StartupForm = () => {
 
       if (result.status == "SUCCESS") {
         toast({
-          title: "Success",
+          title: "Success ✅",
           description: "Your startup pitch has been created successfully",
         });
 
@@ -53,7 +53,7 @@ const StartupForm = () => {
         setErrors(fieldErorrs as unknown as Record<string, string>);
 
         toast({
-          title: "Error",
+          title: "Error ❌",
           description: "Please check your inputs and try again",
           variant: "destructive",
         });
@@ -62,7 +62,7 @@ const StartupForm = () => {
       }
 
       toast({
-        title: "Error",
+        title: "Error ❌",
         description: "An unexpected error has occurred",
         variant: "destructive",
       });
