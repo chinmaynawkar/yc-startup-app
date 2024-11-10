@@ -10,7 +10,7 @@ import { formSchema } from "@/lib/validation";
 import { z } from "zod";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
-// import { createPitch } from "@/lib/actions";
+import { createPitch } from "@/lib/actions";
 
 // useActionState hook allows us to update state based on the result of form action.
 
@@ -34,18 +34,18 @@ const StartupForm = () => {
       await formSchema.parseAsync(formValues);
       console.log("Form values", formValues);
 
-    //   const result = await createPitch(prevState, formData, pitch);
+      const result = await createPitch(prevState, formData, pitch);
 
-    //   if (result.status == "SUCCESS") {
-    //     toast({
-    //       title: "Success",
-    //       description: "Your startup pitch has been created successfully",
-    //     });
+      if (result.status == "SUCCESS") {
+        toast({
+          title: "Success",
+          description: "Your startup pitch has been created successfully",
+        });
 
-    //     router.push(`/startup/${result._id}`);
-    //   }
+        router.push(`/startup/${result._id}`);
+      }
 
-    //   return result;
+      return result;
     } catch (error) {
       if (error instanceof z.ZodError) {
         const fieldErorrs = error.flatten().fieldErrors;
