@@ -1,0 +1,114 @@
+name: CI/CD Pipeline
+
+# Trigger the workflow on push and pull requests to specific branches
+on:
+  push:
+    branches: [ develop, feature/T5_implement_user_profile_and_final_feature ]
+  pull_request:
+    branches: [ develop, feature/T5_implement_user_profile_and_final_feature ]
+
+# Environment variables available to all jobs and steps
+env:
+  NODE_VERSION: '20'
+  NEXT_TELEMETRY_DISABLED: 1
+
+jobs:
+  build-and-deploy:
+    name: Build, Test, and Deploy
+    runs-on: ubuntu-latest
+    
+    # Prevent concurrent deployments
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}
+      cancel-in-progress: true
+    
+    steps:
+    # Step 1: Check out the repository code
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0  # Fetch all history for git history analysis
+    
+    # Step 2: Setup Node.js environment
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'  # Enables npm dependency caching
+        
+    # Step 3: Install dependencies with clean slate
+    - name: Install Dependencies
+      run: |
+        npm ci
+      # npm ci is preferred in CI environments over npm install
+      
+    # Step 4: Type checking
+    - name: Type Check
+      run: npm run type-check
+      # Ensures all TypeScript types are correct
+      
+    # Step 5: Lint check
+    - name: Lint
+      run: npm run lint
+      # Ensures code follows project standards
+      
+    # Step 6: Build the application
+    - name: Build
+      run: npm run build
+      env:
+        # Provide all necessary environment variables for build
+        AUTH_SECRET: ${{ secrets.AUTH_SECRET }}
+        AUTH_GITHUB_ID: ${{ secrets.AUTH_GITHUB_ID }}
+        AUTH_GITHUB_SECRET: ${{ secrets.AUTH_GITHUB_SECRET }}
+        NEXT_PUBLIC_SANITY_PROJECT_ID: ${{ secrets.NEXT_PUBLIC_SANITY_PROJECT_ID }}
+        NEXT_PUBLIC_SANITY_DATASET: ${{ secrets.NEXT_PUBLIC_SANITY_DATASET }}
+        NEXT_PUBLIC_SANITY_API_VERSION: ${{ secrets.NEXT_PUBLIC_SANITY_API_VERSION }}
+        SANITY_WRITE_TOKEN: ${{ secrets.SANITY_WRITE_TOKEN }}
+
+    # Step 7: Cache build output
+    - name: Cache Build
+      uses: actions/cache@v4
+      with:
+        path: |
+          .next/cache
+          # Add other paths that should be cached
+        key: ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json') }}-${{ hashFiles('**.[jt]s', '**.[jt]sx') }}
+        restore-keys: |
+          ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json') }}-
+
+    # Step 8: Deploy to Vercel (only on push to develop)
+    - name: Deploy to Vercel
+      if: github.event_name == 'push' && github.ref == 'refs/heads/develop'
+      uses: amondnet/vercel-action@v20
+      with:
+        vercel-token: ${{ secrets.VERCEL_TOKEN }}
+        vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+        vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+        vercel-args: '--prod'
+        working-directory: ./
+      env:
+        VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+        VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+
+    # Step 9: Notify on failure
+    - name: Notify on Failure
+      if: failure()
+      uses: actions/github-script@v6
+      with:
+        script: |
+          const { repo, owner } = context.repo;
+          const run_id = context.runId;
+          const run_url = `https://github.com/${owner}/${repo}/actions/runs/${run_id}`;
+          github.rest.issues.create({
+            owner,
+            repo,
+            title: `🚨 Workflow failed: ${context.workflow}`,
+            body: `Workflow [${context.workflow}](${run_url}) failed on ${context.ref}`
+          });
+
+    # Step 10: Clean up
+    - name: Cleanup
+      if: always()
+      run: |
+        npm cache clean --force
+        rm -rf node_modules/.cache

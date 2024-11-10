@@ -14,6 +14,7 @@ const StartupDetails = ({ data }: StartupDetailsProps) => {
 
   return (
     <div className="section_container">
+      {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src={data.image}
         alt="thumbnail"
