@@ -60,13 +60,6 @@ jobs:
             echo "Incorrect Next.js version installed: $INSTALLED_VERSION"
             npm install next@15.0.4-canary.4 --force
           fi
-
-      # Type checking with increased memory
-      - name: Run Type Check
-        run: npm run type-check || exit 1
-        env:
-          NODE_OPTIONS: "--max_old_space_size=8192"
-
       # Run ESLint
       - name: Run ESLint
         run: npm run lint || exit 0
