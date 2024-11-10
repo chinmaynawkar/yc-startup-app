@@ -40,40 +40,42 @@ jobs:
           node-version: 20
           cache: 'npm'
 
-      # Clean install
-      - name: Clean Install
-        run: |
-          rm -rf node_modules
-          rm -f package-lock.json
-
-      # Install dependencies with legacy peer deps
+      # Install dependencies with specific handling for canary versions
       - name: Install dependencies
         run: |
-          npm install --legacy-peer-deps
-          npm install sharp
+          echo "Installing dependencies with canary support..."
+          rm -rf node_modules package-lock.json
+          npm cache clean --force
+          npm install --no-package-lock --legacy-peer-deps --force
+          npm install sharp --legacy-peer-deps
+        env:
+          NODE_OPTIONS: "--max_old_space_size=8192"
+          NEXT_TELEMETRY_DISABLED: 1
+          
+      # Ensure correct Next.js version
+      - name: Verify Next.js version
+        run: |
+          INSTALLED_VERSION=$(npm list next | grep next@ | cut -d'@' -f2)
+          if [[ "$INSTALLED_VERSION" != "15.0.4-canary.4" ]]; then
+            echo "Incorrect Next.js version installed: $INSTALLED_VERSION"
+            npm install next@15.0.4-canary.4 --force
+          fi
 
-      # Type checking
+      # Type checking with increased memory
       - name: Run Type Check
         run: npm run type-check || exit 1
+        env:
+          NODE_OPTIONS: "--max_old_space_size=8192"
 
       # Run ESLint
       - name: Run ESLint
         run: npm run lint || exit 0
 
-      # Cache the build
-      - name: Cache Build
-        uses: actions/cache@v3
-        with:
-          path: |
-            .next/cache
-            ${{ github.workspace }}/.next/cache
-          key: ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json') }}-${{ hashFiles('**.[jt]s', '**.[jt]sx') }}
-          restore-keys: |
-            ${{ runner.os }}-nextjs-${{ hashFiles('**/package-lock.json') }}-
-
-      # Verify build
+      # Verify build with increased memory
       - name: Verify the project builds successfully
         run: npm run build
+        env:
+          NODE_OPTIONS: "--max_old_space_size=8192"
 
   deploy:
     needs: verify  # Only runs if verify job succeeds
