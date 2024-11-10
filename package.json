@@ -1,3 +1,4 @@
+
 {
   "name": "startup-app-nextjs15",
   "version": "0.1.0",
@@ -66,3 +67,7 @@
     "typescript": "^5"
   }
 }
+
+
+
+
