@@ -1,12 +1,13 @@
 import StartupForm from "@/components/StartupForm";
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
+import { ROUTES } from '@/constants';
 
 const Page = async () => {
   // Check if user is authenticated
   const session = await auth();
 
-  if (!session) redirect("/");
+  if (!session) redirect(ROUTES.HOME);
 
   return (
     <>

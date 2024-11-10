@@ -3,6 +3,7 @@ import localFont from "next/font/local";
 import "./globals.css";
 import 'easymde/dist/easymde.min.css' //for markdown editor styles
 import { Toaster } from "@/components/ui/toaster";
+import { META } from '@/constants';
 
 const workSans = localFont({
   src: [
@@ -56,8 +57,9 @@ const workSans = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "YC Startup App",
-  description: "YC Startup App",
+  title: META.TITLE,
+  description: META.DESCRIPTION,
+  keywords: [...META.KEYWORDS],
 };
 
 export default function RootLayout({
