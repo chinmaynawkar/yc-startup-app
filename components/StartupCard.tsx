@@ -40,10 +40,10 @@ const StartupCard = ({ post }: { post: StartupTypeCard }) => {
               <h3 className="text-26-semibold line-clamp-1">{title}</h3>
             </Link>
           </div>
-          <Link href={`/user/${author?.image}`}>
+          <Link href={`/user/${author?._id}`}>
             <Image
-              src="https://picsum.photos/100/100"
-              alt="placeholder"
+              src={author?.image || "https://picsum.photos/100/100"}
+              alt={`${author?.name}'s profile`}
               width={48}
               height={48}
               className="rounded-full"

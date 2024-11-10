@@ -5,36 +5,41 @@ import { defineQuery } from "next-sanity";
  * Query to fetch startup documents from Sanity
  * 
  * Conditions:
- * - Document type must be "startup"
- * - Must have a defined slug
+ * - Document type must be "startup" 
  * - If no search parameter is provided, returns all startups
  * - If search parameter exists, matches against:
  *   - Startup title
- *   - Category
  *   - Author name
  * 
- * Returns sorted by creation date (newest first) with:
- * - Startup ID, title, slug, description, category
+ * Returns: _id (Startup ID), _createdAt (timestamp), title, description, 
+ * author (with _id, name, image, username),
+ * views, slug, category, image, pitch
+ * 
+ * Results sorted by creation date (newest first)
  */
-export const STARTUPS_QUERY = defineQuery(`
-  *[_type == "startup" && defined(slug.current) && !defined($search) || 
-  title match $search || category match $search || author->name match $search] | order(_createdAt desc) {
+export const STARTUPS_QUERY = `
+  *[_type == "startup" && 
+    ($search == null || 
+      title match $search + "*" || 
+      author->name match $search + "*"
+    )] {
     _id,
-    title,
-    "slug": slug.current,
-    description,
-    category,
-    image,
-    views,
     _createdAt,
-    author -> {
+    title,
+    description,
+    "author": author->{
       _id,
       name,
       image,
-      bio
-    }
-  }
-`);
+      username
+    },
+    views,
+    slug,
+    category,
+    image,
+    pitch
+  } | order(_createdAt desc)
+`;
 
 
 /**
@@ -72,9 +77,50 @@ export const STARTUP_BY_ID_QUERY = defineQuery(`
   }
 `);
 
+/**
+ * Query to fetch view count for a single startup document by ID from Sanity
+ * 
+ * Conditions:
+ * - Document type must be "startup"
+ * - Matches exact _id parameter
+ * - Returns first (and should be only) matching document
+ * 
+ * Returns:
+ * - Startup ID
+ * - View count
+ */
 export const STARTUP_VIEWS_QUERY = defineQuery(`
   *[_type == "startup" && _id == $id][0] {
     _id,
     views
+  }
+`);
+
+/**
+ * Query to fetch a single author document by GitHub ID from Sanity
+ * 
+ * Conditions:
+ * - Document type must be "author" 
+ * - Matches exact GitHub id parameter
+ * - Returns first (and should be only) matching document
+ * 
+ * Returns author details including:
+ * - Internal Sanity ID (_id)
+ * - GitHub ID (id)
+ * - Display name
+ * - Profile image
+ * - Bio text
+ * - GitHub username
+ * - Email address
+ */
+export const AUTHOR_BY_GITHUB_ID_QUERY = defineQuery(`
+  *[_type == "author" && id == $id][0] {
+    _id,
+    id,
+    name,
+    image,
+    bio,
+    username,
+    email
   }
 `);

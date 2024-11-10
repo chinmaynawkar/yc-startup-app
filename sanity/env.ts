@@ -11,6 +11,18 @@ export const projectId = assertValue(
   'Missing environment variable: NEXT_PUBLIC_SANITY_PROJECT_ID'
 )
 
+export const writeToken = (() => {
+  const token = process.env.SANITY_WRITE_TOKEN;
+  console.log('Token value during initialization:', token);
+  
+  if (!token) {
+    console.warn('Write token not found during initial load, retrying...');
+    return process.env.SANITY_WRITE_TOKEN;
+  }
+  
+  return token;
+})();
+
 function assertValue<T>(v: T | undefined, errorMessage: string): T {
   if (v === undefined) {
     throw new Error(errorMessage)
