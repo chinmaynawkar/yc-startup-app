@@ -2,6 +2,7 @@ import StartupCard, { StartupTypeCard } from "@/components/StartupCard";
 import SearchForm from "../../components/SearchForm";
 import { STARTUPS_QUERY } from "@/sanity/lib/queries";
 import { sanityFetch, SanityLive } from "@/sanity/lib/live";
+import { auth } from "@/auth";
 
 // Add at the top of your page component
 export const revalidate = 0;
@@ -14,6 +15,8 @@ export default async function Home({
   //searchParams is a promise that resolves to an object with a query property
   const query = (await searchParams).query;
   const params = { search: query || null };
+  const session = await auth();
+  console.log("This is the session id", session?.id);
   let posts = [];
 
   try {

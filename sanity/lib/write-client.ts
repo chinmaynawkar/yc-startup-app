@@ -2,14 +2,14 @@ import 'server-only'
 
 import { createClient } from 'next-sanity'
 
-import { apiVersion, dataset, projectId, writeToken } from '../env'
+import { apiVersion, dataset, projectId, writeToken as token } from '../env'
 
 export const writeClient = createClient({
   projectId,
   dataset,
   apiVersion,
   useCdn: false,
-  token: writeToken,
+  token,
 })
 
 if (!writeClient.config().token) {
