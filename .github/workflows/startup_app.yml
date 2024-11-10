@@ -31,21 +31,26 @@ jobs:
       # Check out the repository code
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Fetch all history for proper verification
+          fetch-depth: 0
 
       # Set up Node.js
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: 'npm'  # Enable npm cache
+          cache: 'npm'
 
-      # Install dependencies
+      # Clean install
+      - name: Clean Install
+        run: |
+          rm -rf node_modules
+          rm -f package-lock.json
+
+      # Install dependencies with legacy peer deps
       - name: Install dependencies
         run: |
-          npm i --package-lock-only
-          npm ci
-          npm install sharp  # For image optimization
+          npm install --legacy-peer-deps
+          npm install sharp
 
       # Type checking
       - name: Run Type Check
@@ -53,7 +58,7 @@ jobs:
 
       # Run ESLint
       - name: Run ESLint
-        run: npm run lint || exit 0  # Allow warnings but fail on errors
+        run: npm run lint || exit 0
 
       # Cache the build
       - name: Cache Build
