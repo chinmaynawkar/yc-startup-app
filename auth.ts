@@ -14,10 +14,13 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
      * - Always returns true to allow sign in to complete
      */
     async signIn({
-      
       user: { name, email, image },
-      profile: { id, login, bio },
+      profile,
     }) {
+      if (!profile) {
+        return false;
+      }
+      const { id, login, bio } = profile;
       const existingUser = await client
         .withConfig({ useCdn: false })
         .fetch(AUTHOR_BY_GITHUB_ID_QUERY, {
