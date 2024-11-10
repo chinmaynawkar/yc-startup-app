@@ -2,12 +2,13 @@ import React from 'react'
 import Form  from 'next/form'
 import { Search } from 'lucide-react';
 import SearchFormReset from './SearchFormReset';
+import { ROUTES } from '@/constants';
 // new next js form allows prefetching of loading ui , client side navigation on submit and progressive enhancement
 
 const SearchForm = ({query}: {query?: string}) => {
 
   return (
-    <Form action='/' scroll={false} className='search-form'>
+    <Form action={ROUTES.HOME} scroll={false} className='search-form'>
         <input
             name='query'
             defaultValue={query}

@@ -11,6 +11,7 @@ import { z } from "zod";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
 import { createPitch } from "@/lib/actions";
+import { ROUTES, UI } from "@/constants";
 
 // useActionState hook allows us to update state based on the result of form action.
 
@@ -38,11 +39,12 @@ const StartupForm = () => {
 
       if (result.status == "SUCCESS") {
         toast({
-          title: "Success",
+          title: "Success ✅",
           description: "Your startup pitch has been created successfully",
+          duration: UI.TOAST_DURATION,
         });
 
-        router.push(`/startup/${result._id}`);
+        router.push(`${ROUTES.STARTUP}/${result._id}`);
       }
 
       return result;
@@ -53,18 +55,20 @@ const StartupForm = () => {
         setErrors(fieldErorrs as unknown as Record<string, string>);
 
         toast({
-          title: "Error",
+          title: "Error ❌",
           description: "Please check your inputs and try again",
           variant: "destructive",
+          duration: UI.TOAST_DURATION,
         });
 
         return { ...prevState, error: "Validation failed", status: "ERROR" };
       }
 
       toast({
-        title: "Error",
+        title: "Error ❌",
         description: "An unexpected error has occurred",
         variant: "destructive",
+        duration: UI.TOAST_DURATION,
       });
 
       return {
